@@ -36,23 +36,97 @@ class PagespeedInsightsParser
                 var_dump(json_encode($value, JSON_PRETTY_PRINT));
             }
             if (isset($value['details']['type'])) {
-                $xvalue = $value['details'] ?? $value['displayValue'];
-                $fname = str_replace('-', '_', $key);
-                // displayNestedArray($value);
-                $types[] = $value['details']['type'];
-                // var_dump($value['details']);
-
-                $this->audits[$key]['html'] = $this->renderData($value['details'], $value['title']);
-                // echo "<h3>Details</h3>";
-                // var_dump($value->details);
-                // echo "<h3>displayValue</h3>";
-                // var_dump($value->displayValue);
-                // var_dump($value['displayValue']);
+                $this->audits[$key]['html'] = $this->renderAuditDetails($key);
             } else {
                 $this->audits[$key]['html'] = isset($value['displayValue']) ? "<pre>{$value['displayValue']}</pre>" : '<pre>-- no report available -- </pre>';
             }
         }
     }
+
+    function renderExperienceMetrics($key, $data)
+    {
+        // key: CUMULATIVE_LAYOUT_SHIFT_SCORE
+        // data:  {
+        //         "category": "AVERAGE",
+        //         "formFactor": null,
+        //         "median": null,
+        //         "metricId": null,
+        //         "percentile": 15,
+        //         "distributions": [
+        //             {
+        //                 "max": 10,
+        //                 "min": 0,
+        //                 "proportion": 0.4809
+        //             },
+        //             {
+        //                 "max": 25,
+        //                 "min": 10,
+        //                 "proportion": 0.4786
+        //             },
+        //             {
+        //                 "max": null,
+        //                 "min": 25,
+        //                 "proportion": 0.0405
+        //             }
+        //         ]
+        //     }
+        // <div id="progress-container" class="uk-card uk-card-body">
+        //     <div class="">THIS IS LABEL</div>
+        //     <div class="radial-progress uk-box-shadow-medium" data-percentile="7"
+        //         data-distribution='[{"min": 0, "max": 10, "proportion": 0.4809}, {"min": 10, "max": 25, "proportion": 0.4786}, {"min": 25, "max": null, "proportion": 0.0405}]'>
+        //         <div class="mask"></div>
+        //         <div class="inner-ring"></div>
+        //         <div class="percentile-value"></div>
+
+        //     </div>
+        //     <div>Label</div>
+
+        $distribution = json_encode($data['distributions']);
+
+        $percentile = $data['percentile'];
+        $label = ucwords(strtolower(str_replace('_', ' ', $key)));
+
+        $html = '<div id="progress-container" class="uk-card uk-card-body uk-card-dark uk-width-1-3">
+            <div class="">' . $label . '</div>
+            <div class="radial-progress uk-box-shadow-medium" 
+                data-percentile="' . htmlspecialchars($percentile, ENT_QUOTES, 'UTF-8') . '"
+        data-distribution="' . htmlspecialchars($distribution, ENT_QUOTES, 'UTF-8') . '">
+                <div class="mask"></div>
+                <div class="inner-ring"></div>
+                <div class="percentile-value"></div>
+            </div>
+           
+            </div>';
+
+        return $html;
+    }
+
+    function renderAuditDetails($key)
+    {
+        $html = '';
+        $value = $this->page_speed_result['lighthouseResult']['audits'][$key];
+        if (empty($value['details'])) {
+            return;
+        }
+        if (empty($value['details']['items']) && empty($value['details']['nodes'])) {
+            return;
+        }
+        $type = (isset($value['details']['type'])) ? $value['details']['type'] : 'none';
+        if (isset($value['details']['type'])) {
+            $xvalue = $value['details'] ?? $value['displayValue'];
+            $fname = str_replace('-', '_', $key);
+            $types[] = $value['details']['type'];
+
+            $html .= $this->renderData($value['details'], $value['title']);
+        } else {
+            $html .= isset($value['displayValue']) ? "<pre>{$value['displayValue']}</pre>" : '<pre>-- no report available -- </pre>';
+        }
+
+        return $html;
+
+    }
+
+
     function getPageSpeedInsights()
     {
         if (is_file(__DIR__ . '/' . $this->getDomain() . '.json')) {
@@ -233,7 +307,7 @@ class PagespeedInsightsParser
 
             //Check for nested nodes
             if (isset($item['node']) && is_array($item['node'])) {
-                $html .= $this->displayNestedArray($item[$key]);
+                $html .= $this->displayNestedArray($item['node']);
                 // $html .= '<tr><td colspan="' . count($data['headings']) . '">';
                 // $html .= renderNode($item['node']);
                 // $html .= '</td></tr>';
