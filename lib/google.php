@@ -247,7 +247,7 @@ class PagespeedInsightsParser
 
     function renderOpportunity($data)
     {
-        $html = '<table class="uk-table uk-table-divider">';
+        $html = '<table class="uk-table uk-table-divider render-opportunity">';
         $html .= '<thead><tr>';
 
         foreach ($data['headings'] as $heading) {
@@ -281,7 +281,7 @@ class PagespeedInsightsParser
 
     function renderTable($data)
     {
-        $html = '<table class="uk-table uk-table-divider">';
+        $html = '<table class="uk-table uk-table-divider render-table">';
         $html .= '<thead><tr>';
 
         // Generate table headers
@@ -320,7 +320,7 @@ class PagespeedInsightsParser
 
     function renderNode($node)
     {
-        $html = '<table class="uk-table uk-table-divider">';
+        $html = '<table class="uk-table uk-table-divider render-node">';
         $html .= '<thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>';
 
         foreach ($node as $key => $value) {
@@ -340,7 +340,7 @@ class PagespeedInsightsParser
         if (empty($data['items'])) {
             return;
         }
-        $html = '<table class="uk-table uk-table-divider">';
+        $html = '<table class="uk-table uk-table-divider render-debug">';
         $html .= '<thead><tr><th colspan="2">' . $title . '</th></tr></thead><tbody>';
 
         try {
@@ -364,7 +364,7 @@ class PagespeedInsightsParser
 
     function renderFilmstrip($data)
     {
-        $html = '<div class="uk-card uk-card-default uk-card-body">';
+        $html = '<div class="uk-card uk-card-default uk-card-body render-filmstrip">';
         foreach ($data['items'] as $item) {
             $html .= '<img src="' . htmlspecialchars($item['data']) . '" alt="Filmstrip Image" class="uk-thumbnail" style="width: 150px; " />';
         }
@@ -374,13 +374,13 @@ class PagespeedInsightsParser
 
     function renderScreenshot($data)
     {
-        return '<div class="uk-card uk-card-default uk-card-body"><img src="' . htmlspecialchars($data['data']) . '" alt="Screenshot" class="uk-thumbnail" style="width: 150px; height: 150px;" /></div>';
+        return '<div class="uk-card uk-card-default uk-card-body render-screenshot"><img src="' . htmlspecialchars($data['data']) . '" alt="Screenshot" class="uk-thumbnail" style="width: 150px; height: 150px;" /></div>';
     }
 
     function renderCriticalRequestChain($data)
     {
         var_dump($data);
-        $html = '<ul class="uk-list uk-list-divider">';
+        $html = '<ul class="uk-list uk-list-divider render-critical-request-chain">';
         foreach ($data['chains'] as $chain) {
             $html .= '<li>';
             $html .= '<ul>';
@@ -396,7 +396,7 @@ class PagespeedInsightsParser
 
     function renderTreemapData($data, $title)
     {
-        $html = '<table class="uk-table uk-table-divider">';
+        $html = '<table class="uk-table uk-table-divider render-treemap">';
         $html .= '<thead><tr><th colspan="2">' . $title . '</th></tr></thead><tbody>';
 
         foreach ($data['nodes'] as $node) {
